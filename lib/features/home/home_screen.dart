@@ -20,34 +20,40 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final categories = const [
     Category(
-        title: 'Beverages',
-        imagePath: 'assets/images/cat_beverage.png',
-        chipColor: Color(0xFFE8F5E9)),
+      title: 'Beverages',
+      imagePath: 'assets/images/beverage.png',
+      chipColor: Color(0xFFE8F5E9),
+    ),
     Category(
-        title: 'Snack',
-        imagePath: 'assets/images/cat_snack.png',
-        chipColor: Color(0xFFFFF3E0)),
+      title: 'Snack',
+      imagePath: 'assets/images/snack.png',
+      chipColor: Color(0xFFFFF3E0),
+    ),
     Category(
-        title: 'Seafood',
-        imagePath: 'assets/images/cat_seafood.png',
-        chipColor: Color(0xFFFFEBEE)),
+      title: 'Seafood',
+      imagePath: 'assets/images/seafood.png',
+      chipColor: Color(0xFFFFEBEE),
+    ),
     Category(
-        title: 'Dessert',
-        imagePath: 'assets/images/cat_dessert.png',
-        chipColor: Color(0xFFE8F5E9)),
+      title: 'Dessert',
+      imagePath: 'assets/images/dessert.png',
+      chipColor: Color(0xFFE8F5E9),
+    ),
   ];
 
   final places = const [
     Place(
-        title: 'Starbuck Borobudur',
-        distanceLabel: '1.0 km',
-        rating: 4.8,
-        imagePath: 'assets/images/p1.jpg'),
+      title: 'Starbuck Borobudur',
+      distanceLabel: '1.0 km',
+      rating: 4.8,
+      imagePath: 'assets/images/td1.png',
+    ),
     Place(
-        title: 'Baegopa Suhat',
-        distanceLabel: '500 m',
-        rating: 4.8,
-        imagePath: 'assets/images/p2.jpg'),
+      title: 'Baegopa Suhat',
+      distanceLabel: '500 m',
+      rating: 4.8,
+      imagePath: 'assets/images/td2.png',
+    ),
   ];
 
   @override
@@ -87,13 +93,12 @@ class _HomeScreenState extends State<HomeScreen> {
             SliverToBoxAdapter(child: _sectionTitle(context, 'Top Discount')),
             SliverToBoxAdapter(
               child: SizedBox(
-                height:
-                    250, // fixed height that covers image + text comfortably
+                height: 250,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   itemCount: places.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 14),
+                  separatorBuilder: (_, __) => const SizedBox(width: 20),
                   itemBuilder: (_, i) => DiscountCard(
                     key: ValueKey(places[i].title),
                     place: places[i],
@@ -110,7 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _header(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+      padding: const EdgeInsets.fromLTRB(24, 36, 24, 12),
       child: Row(
         children: [
           Expanded(
@@ -121,17 +126,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   Icon(Icons.location_on, color: AppColors.primary, size: 18),
                   const SizedBox(width: 4),
                   Text('Current location',
-                      style: Theme.of(context)
-                          .textTheme
-                          .labelSmall
-                          ?.copyWith(color: AppColors.textDim)),
+                      style: AppText.interRegular(
+                          color: AppColors.textDim, fontSize: 12)),
                 ]),
                 const SizedBox(height: 4),
                 Text('Jl. Soekarno Hatta 15A...',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w700)),
+                    style: AppText.interSemiBold(fontSize: 14)),
               ],
             ),
           ),
@@ -159,84 +161,208 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _search(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: TextField(
         decoration: InputDecoration(
           filled: true,
           fillColor: AppColors.card,
-          prefixIcon: const Icon(Icons.search),
-          suffixIcon: const Icon(Icons.tune),
+          prefixIcon: const Padding(
+            padding: EdgeInsets.only(left: 12, right: 5),
+            child: Icon(Icons.search, size: 20, color: Colors.grey),
+          ),
+          prefixIconConstraints:
+              const BoxConstraints(minWidth: 0, minHeight: 0),
+          suffixIcon: Container(
+            margin: const EdgeInsets.only(right: 12),
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(Icons.tune, size: 20, color: Colors.grey),
+          ),
+          suffixIconConstraints:
+              const BoxConstraints(minWidth: 0, minHeight: 0),
           hintText: 'Search menu, restaurant or etc',
-          hintStyle: TextStyle(color: AppColors.textDim),
+          hintStyle: AppText.interRegular(
+            color: AppColors.textDim,
+            fontSize: 12,
+          ),
           border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide.none),
+            borderRadius: BorderRadius.circular(24),
+            borderSide: BorderSide(color: Colors.grey.shade300),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(24),
+            borderSide: BorderSide(color: Colors.grey.shade300),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(24),
+            borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+          ),
           contentPadding:
-              const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+              const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
         ),
       ),
     );
   }
 
   Widget _banner(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       child: AspectRatio(
-        aspectRatio: 343 / 120, // keeps promo proportions across devices
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-                colors: [AppColors.primary, AppColors.primaryDark]),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Flexible(
-                      child: Text('Claim your\ndiscount 30%\ndaily now!',
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w800)),
+        aspectRatio: 327 / 142,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // Get actual banner dimensions
+            final bannerWidth = constraints.maxWidth;
+            final bannerHeight = constraints.maxHeight;
+
+            return ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Stack(
+                clipBehavior: Clip.hardEdge, // prevent overflow
+                children: [
+                  // Background image
+                  Positioned.fill(
+                    child: Image.asset(
+                      'assets/images/green_grass.png',
+                      fit: BoxFit.cover,
                     ),
-                    const SizedBox(height: 10),
-                    FilledButton(
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => DetailScreen(place: places[0]),
+                  ),
+
+                  // Semi-transparent overlay
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.bottomRight,
+                          end: Alignment.topLeft,
+                          colors: [
+                            AppColors.primary.withAlpha(230),
+                            AppColors.primaryDark.withAlpha(230),
+                          ],
                         ),
                       ),
-                      style: FilledButton.styleFrom(
-                          backgroundColor: Colors.black,
-                          foregroundColor: Colors.white,
-                          minimumSize: const Size(0, 34),
-                          padding: const EdgeInsets.symmetric(horizontal: 14),
-                          shape: const StadiumBorder()),
-                      child: const Text('Order now'),
                     ),
-                  ],
-                ),
+                  ),
+
+                  // Text & button
+                  Positioned(
+                    left: bannerWidth * 0.05, // 4% from left
+                    top: 0,
+                    bottom: 0,
+                    width: bannerWidth * 0.51, // 51% of banner width
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Claim your\ndiscount 30%\ndaily now!',
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppText.interSemiBold(
+                            color: Colors.white,
+                            fontSize: bannerWidth * 0.05, // 4% of banner width
+                          ),
+                        ),
+                        SizedBox(
+                            height: bannerHeight * 0.04), // 8% of banner height
+                        SizedBox(
+                          height: bannerHeight * 0.2, // 25% of banner height
+                          child: FilledButton(
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => DetailScreen(place: places[0]),
+                              ),
+                            ),
+                            style: FilledButton.styleFrom(
+                              backgroundColor: Colors.black,
+                              foregroundColor: Colors.white,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: bannerWidth * 0.06,
+                                vertical: bannerHeight * 0.005,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            child: Text(
+                              'Order now',
+                              style: AppText.sfProSemiBold(
+                                color: Colors.white,
+                                fontSize:
+                                    bannerWidth * 0.033, // 3% of banner width
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Flipped overlay image - positioned relative to banner
+                  Positioned(
+                    right: bannerWidth * 0.16, // 2% from right edge
+                    bottom: bannerHeight * 0.0, // 10% from bottom
+                    child: Transform.scale(
+                      scaleX: -1.0,
+                      child: SizedBox(
+                        width: bannerWidth * 0.415, // 35% of banner width
+                        height: bannerHeight * 0.92, // 80% of banner height
+                        child: Image.asset(
+                          'assets/images/ice_cream.png',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Pagination pill - positioned relative to banner
+                  Positioned(
+                    bottom: bannerHeight * 0.09, // 8% from bottom
+                    right: bannerWidth * 0.05, // 5% from right
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: bannerWidth * 0.03, // 3% of banner width
+                        vertical: bannerHeight * 0.06, // 4% of banner height
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius:
+                            BorderRadius.circular(bannerHeight * 0.08),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: List.generate(3, (i) {
+                          final active = i == 0;
+                          return Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: bannerWidth * 0.008),
+                            child: Container(
+                              width:
+                                  bannerWidth * 0.038, // 2.5% of banner width
+                              height:
+                                  bannerHeight * 0.03, // 5% of banner height
+                              decoration: BoxDecoration(
+                                color: active
+                                    ? AppColors.primary
+                                    : Colors.grey.shade300,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
-              Flexible(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.asset('assets/images/ice_cream.png',
-                      fit: BoxFit.cover),
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
@@ -244,14 +370,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _sectionTitle(BuildContext context, String title) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 9),
       child: Row(
         children: [
-          Text(title,
-              style:
-                  const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+          Text(title, style: AppText.interSemiBold(fontSize: 16)),
           const Spacer(),
-          Text('See all', style: TextStyle(color: AppColors.textDim)),
+          Text('See all',
+              style: AppText.interSemiBold(
+                  color: AppColors.textDim, fontSize: 12)),
         ],
       ),
     );

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../models/category.dart';
+import '../../../core/theme/typography.dart';
 
 class CategoryChip extends StatelessWidget {
   final Category category;
@@ -15,13 +16,15 @@ class CategoryChip extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(
-            width: 60,
-            height: 60,
+            width: 64,
+            height: 64,
             child: ClipOval(
-              child: ColoredBox(
-                // placeholder while assets are ignored
-                color: category.chipColor,
-                child: const SizedBox.expand(),
+              child: Image.asset(
+                category
+                    .imagePath, // your path, e.g. 'assets/images/beverage.png'
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) =>
+                    ColoredBox(color: category.chipColor),
               ),
             ),
           ),
@@ -35,7 +38,8 @@ class CategoryChip extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 12, color: AppColors.text),
+                style:
+                    AppText.interSemiBold(color: AppColors.text, fontSize: 14),
               ),
             ),
           ),

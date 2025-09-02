@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ionicons/ionicons.dart';
 import '../../../core/theme/app_colors.dart';
 
 class BottomNav extends StatelessWidget {
@@ -18,17 +19,18 @@ class BottomNav extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _item(Icons.home_rounded, 'Home', 0),
-            _item(Icons.shopping_bag_outlined, 'Orders', 1),
-            _item(Icons.bookmark_border, 'Bookmark', 2),
-            _item(Icons.person_outline, 'Profile', 3),
+            _item(Ionicons.home_outline, Ionicons.home, 'Home', 0),
+            _item(Ionicons.receipt_outline, Ionicons.receipt, 'Orders', 1),
+            _item(Ionicons.bookmark_outline, Ionicons.bookmark, 'Bookmark', 2),
+            _item(Ionicons.person_outline, Ionicons.person, 'Profile', 3),
           ],
         ),
       ),
     );
   }
 
-  Widget _item(IconData icon, String label, int i) {
+  Widget _item(
+      IconData outlinedIcon, IconData filledIcon, String label, int i) {
     final selected = index == i;
     final color = selected ? AppColors.primary : Colors.grey;
     return InkWell(
@@ -39,20 +41,30 @@ class BottomNav extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: color, size: 22),
+            Icon(
+              selected ? filledIcon : outlinedIcon,
+              color: color,
+              size: 22,
+            ),
             const SizedBox(height: 2),
-            Text(label,
-                style: TextStyle(
-                    fontSize: 11,
-                    color: color,
-                    fontWeight: selected ? FontWeight.w700 : FontWeight.w400)),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                color: color,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+              ),
+            ),
             if (selected)
               Container(
-                  margin: const EdgeInsets.only(top: 4),
-                  width: 4,
-                  height: 4,
-                  decoration: const BoxDecoration(
-                      color: AppColors.primary, shape: BoxShape.circle)),
+                margin: const EdgeInsets.only(top: 4),
+                width: 4,
+                height: 4,
+                decoration: const BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
+                ),
+              ),
           ],
         ),
       ),
