@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:ionicons/ionicons.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:freshgo/core/theme/typography.dart';
 import '../../../core/theme/app_colors.dart';
 
 class BottomNav extends StatelessWidget {
@@ -9,64 +10,70 @@ class BottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+
+    // Left and right padding
+    final edgePadding = w * 0.1;
+
     return SafeArea(
       top: false,
       child: Container(
         height: 64,
-        decoration: const BoxDecoration(color: AppColors.card, boxShadow: [
-          BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, -2))
-        ]),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _item(Ionicons.home_outline, Ionicons.home, 'Home', 0),
-            _item(Ionicons.receipt_outline, Ionicons.receipt, 'Orders', 1),
-            _item(Ionicons.bookmark_outline, Ionicons.bookmark, 'Bookmark', 2),
-            _item(Ionicons.person_outline, Ionicons.person, 'Profile', 3),
-          ],
+        decoration: const BoxDecoration(
+          border: Border(
+            top: BorderSide(color: AppColors.border),
+          ),
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+              horizontal: edgePadding), // same padding left/right
+          child: Row(
+            mainAxisAlignment:
+                MainAxisAlignment.spaceBetween, // evenly distribute items
+            children: [
+              Transform.translate(
+                offset: const Offset(0, -1), // move 3 pixels up
+                child:
+                    _item(SvgPicture.asset("assets/icons/home.svg"), 'Home', 0),
+              ),
+              _item(SvgPicture.asset("assets/icons/orders.svg"), 'Orders', 1),
+              _item(
+                  SvgPicture.asset("assets/icons/bookmark.svg"), 'Bookmark', 2),
+              _item(SvgPicture.asset("assets/icons/profile.svg"), 'Profile', 3),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _item(
-      IconData outlinedIcon, IconData filledIcon, String label, int i) {
-    final selected = index == i;
-    final color = selected ? AppColors.primary : Colors.grey;
-    return InkWell(
-      onTap: () => onTap(i),
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              selected ? filledIcon : outlinedIcon,
-              color: color,
-              size: 22,
-            ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                color: color,
-                fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
-              ),
-            ),
-            if (selected)
-              Container(
-                margin: const EdgeInsets.only(top: 4),
-                width: 4,
-                height: 4,
-                decoration: const BoxDecoration(
-                  color: AppColors.primary,
-                  shape: BoxShape.circle,
-                ),
-              ),
-          ],
-        ),
+  Widget _item(Widget icon, String label, int i) {
+    final iconSize = i == index ? 18.0 : 16.0;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 1),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 20,
+            height: iconSize,
+            child: icon,
+          ),
+          SizedBox(height: i == 0 ? 5 : 4),
+          Text(
+            label,
+            style: i == index
+                ? AppText.interSemiBold(
+                    fontSize: 12,
+                    color: AppColors.primary,
+                  )
+                : AppText.interRegular(
+                    fontSize: 12,
+                    color: AppColors.textDim,
+                  ),
+          ),
+        ],
       ),
     );
   }

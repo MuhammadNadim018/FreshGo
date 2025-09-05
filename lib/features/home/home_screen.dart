@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/typography.dart';
 import '../../models/category.dart';
@@ -21,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final categories = const [
     Category(
       title: 'Beverages',
-      imagePath: 'assets/images/beverage.png',
+      imagePath: 'assets/images/beverages.png',
       chipColor: Color(0xFFE8F5E9),
     ),
     Category(
@@ -58,7 +59,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.sizeOf(context);
+    final media = MediaQuery.of(context);
+    final w = media.size.width;
+    final h = media.size.height;
+
+    final hPad = w * 0.06; // horizontal padding
+    final baseFont = w / 24; // base font size
+
     return Scaffold(
       backgroundColor: AppColors.bg,
       bottomNavigationBar:
@@ -66,92 +73,155 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            SliverToBoxAdapter(child: _header(context)),
-            const SliverToBoxAdapter(child: SizedBox(height: 12)),
-            SliverToBoxAdapter(child: _search(context)),
-            const SliverToBoxAdapter(child: SizedBox(height: 16)),
-            SliverToBoxAdapter(child: _banner(context)),
-            const SliverToBoxAdapter(child: SizedBox(height: 16)),
-            SliverToBoxAdapter(child: _sectionTitle(context, 'Top Categories')),
+            SliverToBoxAdapter(child: _header(context, hPad)),
+            SliverToBoxAdapter(child: SizedBox(height: h * 0.015)),
+            SliverToBoxAdapter(child: _search(context, hPad)),
+            SliverToBoxAdapter(child: SizedBox(height: h * 0.025)),
             SliverToBoxAdapter(
-              child: ConstrainedBox(
-                constraints: BoxConstraints.tightFor(
-                  height: (MediaQuery.sizeOf(context).height * 0.12)
-                      .clamp(88.0, 112.0),
-                  width: MediaQuery.sizeOf(context).width,
-                ),
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: categories.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 12),
-                  itemBuilder: (_, i) => CategoryChip(category: categories[i]),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: hPad),
+                child: _banner(context),
+              ),
+            ),
+            SliverToBoxAdapter(child: SizedBox(height: h * 0.035)),
+            // Top Categories
+            SliverToBoxAdapter(
+              child: _sectionTitle(context, 'Top Categories', hPad, baseFont),
+            ),
+            SliverToBoxAdapter(child: SizedBox(height: h * 0.01)),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: hPad * 0.9),
+                child: Row(
+                  children: categories.map((cat) {
+                    final isLast = cat == categories.last;
+                    return Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.only(right: isLast ? 0 : w * 0.01),
+                        child: CategoryChip(category: cat),
+                      ),
+                    );
+                  }).toList(),
                 ),
               ),
             ),
-            const SliverToBoxAdapter(child: SizedBox(height: 10)),
-            SliverToBoxAdapter(child: _sectionTitle(context, 'Top Discount')),
+            SliverToBoxAdapter(child: SizedBox(height: h * 0.025)),
+            // Top Discount
             SliverToBoxAdapter(
-              child: SizedBox(
-                height: 250,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: places.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 20),
-                  itemBuilder: (_, i) => DiscountCard(
-                    key: ValueKey(places[i].title),
-                    place: places[i],
-                  ),
-                ),
+              child: _sectionTitle(context, 'Top Discount', hPad, baseFont),
+            ),
+            SliverToBoxAdapter(child: SizedBox(height: h * 0.01)),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: hPad),
+                child: LayoutBuilder(builder: (ctx, cons) {
+                  final totalW = cons.maxWidth;
+                  final spacing = w * 0.05; // space between cards
+                  final cardW =
+                      (totalW - (places.length - 1) * spacing) / places.length;
+
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      for (var i = 0; i < places.length; i++) ...[
+                        SizedBox(
+                          width: cardW,
+                          child: DiscountCard(place: places[i]),
+                        ),
+                        if (i < places.length - 1) SizedBox(width: spacing),
+                      ]
+                    ],
+                  );
+                }),
               ),
             ),
-            const SliverToBoxAdapter(child: SizedBox(height: 24)),
+
+            SliverToBoxAdapter(child: SizedBox(height: h * 0.03)),
           ],
         ),
       ),
     );
   }
 
-  Widget _header(BuildContext context) {
+  Widget _header(BuildContext context, double hPad) {
+    final w = MediaQuery.of(context).size.width;
+    final iconBox = (w * 0.1).clamp(32.0, 48.0);
+    final iconTextGap = w * 0.03;
+    final labelFont = (iconBox * 0.33);
+    final addressFont = (iconBox * 0.4);
+
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 36, 24, 12),
+      padding: EdgeInsets.fromLTRB(hPad, iconBox * 0.75, hPad, iconBox * 0.25),
       child: Row(
         children: [
+          Container(
+            width: iconBox,
+            height: iconBox,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withAlpha(25),
+              borderRadius: BorderRadius.circular(iconBox * 0.15),
+            ),
+            child: Center(
+              child: Transform.scale(
+                scale: 1.2,
+                child: SvgPicture.asset(
+                  'assets/icons/map_pin.svg',
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: iconTextGap),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(children: [
-                  Icon(Icons.location_on, color: AppColors.primary, size: 18),
-                  const SizedBox(width: 4),
-                  Text('Current location',
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Current location',
                       style: AppText.interRegular(
-                          color: AppColors.textDim, fontSize: 12)),
-                ]),
-                const SizedBox(height: 4),
-                Text('Jl. Soekarno Hatta 15A...',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppText.interSemiBold(fontSize: 14)),
+                        color: AppColors.textSecondary,
+                        fontSize: labelFont,
+                      ),
+                    ),
+                    SizedBox(width: w * 0.015),
+                    Icon(
+                      Icons.arrow_drop_down,
+                      size: labelFont * 1.3,
+                      color: AppColors.textSecondary,
+                    ),
+                  ],
+                ),
+                SizedBox(height: iconTextGap * 0.5),
+                Text(
+                  'Jl. Soekarno Hatta 15A \'this is extra text\'',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppText.interSemiBold(
+                    fontSize: addressFont,
+                  ),
+                ),
               ],
             ),
           ),
-          const SizedBox(width: 12),
-          SizedBox(
-            width: 40,
-            height: 40,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                  color: AppColors.card,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: const [
-                    BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 8,
-                        offset: Offset(0, 2))
-                  ]),
-              child: const Icon(Icons.notifications_none),
+          SizedBox(width: iconTextGap),
+          Container(
+            width: iconBox,
+            height: iconBox,
+            decoration: BoxDecoration(
+              color: AppColors.textDim.withAlpha(25),
+              borderRadius: BorderRadius.circular(iconBox * 0.15),
+            ),
+            child: Center(
+              child: Transform.scale(
+                scale: 1.2,
+                child: SvgPicture.asset(
+                  'assets/icons/dot_bell_notification_outline.svg',
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
           ),
         ],
@@ -159,225 +229,219 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _search(BuildContext context) {
+  Widget _search(BuildContext context, double hPad) {
+    final w = MediaQuery.of(context).size.width;
+    final height = (w * 0.08).clamp(48.0, 64.0);
+    final iconSize = height * 0.38;
+    final gap = height * 0.25;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: TextField(
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: AppColors.card,
-          prefixIcon: const Padding(
-            padding: EdgeInsets.only(left: 12, right: 5),
-            child: Icon(Icons.search, size: 20, color: Colors.grey),
-          ),
-          prefixIconConstraints:
-              const BoxConstraints(minWidth: 0, minHeight: 0),
-          suffixIcon: Container(
-            margin: const EdgeInsets.only(right: 12),
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
+      padding: EdgeInsets.symmetric(horizontal: hPad),
+      child: Container(
+        height: height,
+        decoration: BoxDecoration(
+          color: AppColors.bg,
+          borderRadius: BorderRadius.circular(height * 0.5),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Row(
+          children: [
+            SizedBox(width: gap * 1.5),
+            SvgPicture.asset(
+              'assets/icons/search.svg',
+              height: iconSize,
+              width: iconSize,
+              fit: BoxFit.contain,
             ),
-            child: const Icon(Icons.tune, size: 20, color: Colors.grey),
-          ),
-          suffixIconConstraints:
-              const BoxConstraints(minWidth: 0, minHeight: 0),
-          hintText: 'Search menu, restaurant or etc',
-          hintStyle: AppText.interRegular(
-            color: AppColors.textDim,
-            fontSize: 12,
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(24),
-            borderSide: BorderSide(color: Colors.grey.shade300),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(24),
-            borderSide: BorderSide(color: Colors.grey.shade300),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(24),
-            borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
-          ),
-          contentPadding:
-              const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+            SizedBox(width: gap),
+            Expanded(
+              child: TextField(
+                style: AppText.interRegular(color: AppColors.text),
+                decoration: InputDecoration(
+                  isDense: true,
+                  border: InputBorder.none,
+                  hintText: 'Search menu, restaurant or etc',
+                  hintStyle: AppText.interRegular(
+                    color: AppColors.textDim,
+                    fontSize: height * 0.27,
+                  ),
+                ),
+              ),
+            ),
+            SvgPicture.asset(
+              'assets/icons/filter.svg',
+              height: iconSize,
+              width: iconSize,
+              fit: BoxFit.contain,
+            ),
+            SizedBox(width: gap * 1.5),
+          ],
         ),
       ),
     );
   }
 
   Widget _banner(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
+    final w = MediaQuery.of(context).size.width;
+    final h = MediaQuery.of(context).size.height;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-      child: AspectRatio(
-        aspectRatio: 327 / 142,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            // Get actual banner dimensions
-            final bannerWidth = constraints.maxWidth;
-            final bannerHeight = constraints.maxHeight;
-
-            return ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: Stack(
-                clipBehavior: Clip.hardEdge, // prevent overflow
-                children: [
-                  // Background image
-                  Positioned.fill(
+    return AspectRatio(
+      aspectRatio: 327 / 142,
+      child: LayoutBuilder(
+        builder: (ctx, cons) {
+          final bwLocal = cons.maxWidth;
+          final bh = cons.maxHeight;
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Stack(
+              clipBehavior: Clip.hardEdge,
+              children: [
+                Positioned.fill(
+                  child: ColorFiltered(
+                    colorFilter: ColorFilter.mode(
+                      Colors.lightGreenAccent.withAlpha(80),
+                      BlendMode.hardLight,
+                    ),
                     child: Image.asset(
                       'assets/images/green_grass.png',
                       fit: BoxFit.cover,
                     ),
                   ),
-
-                  // Semi-transparent overlay
-                  Positioned.fill(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.bottomRight,
-                          end: Alignment.topLeft,
-                          colors: [
-                            AppColors.primary.withAlpha(230),
-                            AppColors.primaryDark.withAlpha(230),
-                          ],
-                        ),
+                ),
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomRight,
+                        end: Alignment.topLeft,
+                        colors: [
+                          Color.lerp(
+                                  AppColors.primary, Colors.greenAccent, 0.5)!
+                              .withAlpha(150),
+                          Color.lerp(
+                                  Colors.lightGreen, Colors.greenAccent, 0.6)!
+                              .withAlpha(150),
+                        ],
                       ),
                     ),
                   ),
-
-                  // Text & button
-                  Positioned(
-                    left: bannerWidth * 0.05, // 4% from left
-                    top: 0,
-                    bottom: 0,
-                    width: bannerWidth * 0.51, // 51% of banner width
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Claim your\ndiscount 30%\ndaily now!',
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppText.interSemiBold(
-                            color: Colors.white,
-                            fontSize: bannerWidth * 0.05, // 4% of banner width
-                          ),
-                        ),
-                        SizedBox(
-                            height: bannerHeight * 0.04), // 8% of banner height
-                        SizedBox(
-                          height: bannerHeight * 0.2, // 25% of banner height
-                          child: FilledButton(
-                            onPressed: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => DetailScreen(place: places[0]),
-                              ),
-                            ),
-                            style: FilledButton.styleFrom(
-                              backgroundColor: Colors.black,
-                              foregroundColor: Colors.white,
-                              padding: EdgeInsets.symmetric(
-                                horizontal: bannerWidth * 0.06,
-                                vertical: bannerHeight * 0.005,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                            ),
-                            child: Text(
-                              'Order now',
-                              style: AppText.sfProSemiBold(
-                                color: Colors.white,
-                                fontSize:
-                                    bannerWidth * 0.033, // 3% of banner width
-                              ),
+                ),
+                Positioned(
+                  left: bwLocal * 0.05,
+                  top: 0,
+                  bottom: 0,
+                  width: bwLocal * 0.51,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Claim your\ndiscount 30%\ndaily now!',
+                        style: AppText.interSemiBold(
+                          color: Colors.white,
+                          fontSize: bwLocal * 0.05,
+                        ).copyWith(height: 1.17),
+                      ),
+                      SizedBox(height: bh * 0.06),
+                      SizedBox(
+                        height: bh * 0.21,
+                        child: FilledButton(
+                          onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => DetailScreen(place: places[0]),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Flipped overlay image - positioned relative to banner
-                  Positioned(
-                    right: bannerWidth * 0.16, // 2% from right edge
-                    bottom: bannerHeight * 0.0, // 10% from bottom
-                    child: Transform.scale(
-                      scaleX: -1.0,
-                      child: SizedBox(
-                        width: bannerWidth * 0.415, // 35% of banner width
-                        height: bannerHeight * 0.92, // 80% of banner height
-                        child: Image.asset(
-                          'assets/images/ice_cream.png',
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  // Pagination pill - positioned relative to banner
-                  Positioned(
-                    bottom: bannerHeight * 0.09, // 8% from bottom
-                    right: bannerWidth * 0.05, // 5% from right
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: bannerWidth * 0.03, // 3% of banner width
-                        vertical: bannerHeight * 0.06, // 4% of banner height
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius:
-                            BorderRadius.circular(bannerHeight * 0.08),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: List.generate(3, (i) {
-                          final active = i == 0;
-                          return Padding(
+                          style: FilledButton.styleFrom(
+                            backgroundColor: AppColors.blackButton,
+                            foregroundColor: Colors.white,
                             padding: EdgeInsets.symmetric(
-                                horizontal: bannerWidth * 0.008),
-                            child: Container(
-                              width:
-                                  bannerWidth * 0.038, // 2.5% of banner width
-                              height:
-                                  bannerHeight * 0.03, // 5% of banner height
-                              decoration: BoxDecoration(
-                                color: active
-                                    ? AppColors.primary
-                                    : Colors.grey.shade300,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
+                              horizontal: bwLocal * 0.045,
+                              vertical: bh * 0.008,
                             ),
-                          );
-                        }),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          child: Text(
+                            'Order now',
+                            style: AppText.sfProSemiBold(
+                              fontSize: bwLocal * 0.035,
+                            ),
+                          ),
+                        ),
                       ),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  right: bwLocal * -0.05,
+                  child: SizedBox(
+                    width: bwLocal * 0.8,
+                    height: bh * 1.0,
+                    child: Image.asset(
+                      'assets/images/ice_cream.png',
+                      fit: BoxFit.contain,
+                      alignment: Alignment.bottomCenter,
                     ),
                   ),
-                ],
-              ),
-            );
-          },
-        ),
+                ),
+                Positioned(
+                  bottom: bh * 0.09,
+                  right: bwLocal * 0.05,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: bwLocal * 0.031,
+                      vertical: bh * 0.055,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(bh * 0.08),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: List.generate(3, (i) {
+                        final active = i == 0;
+                        return Padding(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: bwLocal * 0.006),
+                          child: Container(
+                            width: bwLocal * 0.036,
+                            height: bh * 0.03,
+                            decoration: BoxDecoration(
+                              color: active
+                                  ? AppColors.primary
+                                  : Colors.grey.shade300,
+                              borderRadius: BorderRadius.circular(bh * 0.08),
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _sectionTitle(BuildContext context, String title) {
+  Widget _sectionTitle(
+      BuildContext context, String title, double hPad, double baseFont) {
+    final seeAllFont = (MediaQuery.of(context).size.width * 0.033);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 9),
+      padding: EdgeInsets.fromLTRB(hPad, 0, hPad, hPad * 0.3),
       child: Row(
         children: [
-          Text(title, style: AppText.interSemiBold(fontSize: 16)),
-          const Spacer(),
-          Text('See all',
-              style: AppText.interSemiBold(
-                  color: AppColors.textDim, fontSize: 12)),
+          Text(title, style: AppText.interSemiBold(fontSize: baseFont * 1.1)),
+          Spacer(),
+          Text(
+            'See all',
+            style: AppText.interSemiBold(
+                color: AppColors.textDimmer, fontSize: seeAllFont),
+          ),
         ],
       ),
     );

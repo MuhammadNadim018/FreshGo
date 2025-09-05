@@ -12,9 +12,10 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
+  phosphor_flutter: ^2.1.0
   ionicons: ^0.2.2
   google_fonts: ^6.2.1
-  # flutter_svg: ^2.0.10+1
+  flutter_svg: ^2.0.10+1
   smooth_page_indicator: ^1.1.0
 
 dev_dependencies:
@@ -27,6 +28,7 @@ flutter:
   assets:
     - assets/images/
     - assets/fonts/
+    - assets/icons/
   
   fonts:
     - family: SFPro
