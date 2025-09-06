@@ -282,8 +282,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _banner(BuildContext context) {
-    final w = MediaQuery.of(context).size.width;
-    final h = MediaQuery.of(context).size.height;
+    // final w = MediaQuery.of(context).size.width;
+    // final h = MediaQuery.of(context).size.height;
 
     return AspectRatio(
       aspectRatio: 327 / 142,
